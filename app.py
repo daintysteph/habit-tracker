@@ -1,10 +1,45 @@
-from flask import Flask, render_template
+from datetime import date
+from flask import Flask, render_template, redirect, url_for
+from database import get_db, init_db
 
 app = Flask(__name__)
+init_db()
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    today = date.today().isoformat()
+    conn = get_db()
+    habits = conn.execute(
+        "SELECT h.id, h.name, EXISTS("
+        "SELECT 1 FROM completions c "
+        "WHERE c.habit_id = h.id AND c.day = ?) AS done "
+        "FROM habits h",
+        (today,),
+    ).fetchall()
+    conn.close()
+    return render_template("index.html", habits=habits)
+
+@app.route("/toggle/<int:habit_id>", methods=["POST"])
+def toggle(habit_id):
+    today = date.today().isoformat()
+    conn = get_db()
+    exists = conn.execute(
+        "SELECT 1 FROM completions WHERE habit_id = ? AND day = ?",
+        (habit_id, today),
+    ).fetchone()
+    if exists:
+        conn.execute(
+            "DELETE FROM completions WHERE habit_id = ? AND day = ?",
+            (habit_id, today),
+        )
+    else:
+        conn.execute(
+            "INSERT INTO completions (habit_id, day) VALUES (?, ?)",
+            (habit_id, today),
+        )
+    conn.commit()
+    conn.close()
+    return redirect(url_for("home"))
 
 if __name__ == "__main__":
     app.run(debug=True)
