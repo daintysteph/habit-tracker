@@ -10,6 +10,7 @@ body {
 h1 {
   color: #0f766e;
 }
+
 ul {
   list-style: none;
   padding: 0;
@@ -20,14 +21,40 @@ li {
   border: 1px solid #d5e0dc;
   border-radius: 12px;
   margin-bottom: 10px;
+  padding: 14px;
 }
 
-form {
+.head {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+
+.name {
   font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.streak {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: #6b7f7a;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: #6b7f7a;
 }
 
 button {
@@ -39,25 +66,18 @@ button {
   font-size: 1.1rem;
   cursor: pointer;
 }
+
+.day button {
+  width: 100%;
+  max-width: 40px;
+  height: auto;
+  aspect-ratio: 1;
+}
+
 button.done {
   background: #0f766e;
   border-color: #0f766e;
   color: white;
-}
-.add input {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #d5e0dc;
-  border-radius: 8px;
-  font-size: 1rem;
-}
-li {
-  display: flex;
-  align-items: center;
-}
-
-li form:first-child {
-  flex: 1;
 }
 
 .delete {
@@ -67,8 +87,17 @@ li form:first-child {
   color: #6b7f7a;
   border-width: 1px;
 }
-.streak {
-  margin-left: auto;
-  font-size: 0.85rem;
-  color: #6b7f7a;
+
+.add {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.add input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #d5e0dc;
+  border-radius: 8px;
+  font-size: 1rem;
 }
