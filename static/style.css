@@ -67,3 +67,8 @@ li form:first-child {
   color: #6b7f7a;
   border-width: 1px;
 }
+.streak {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: #6b7f7a;
+}

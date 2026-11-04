@@ -1,9 +1,22 @@
-from datetime import date
+from datetime import date, timedelta
 from flask import Flask, render_template, redirect, url_for, request
 from database import get_db, init_db
 app = Flask(__name__)
 init_db()
 
+def get_streak(conn, habit_id):
+    rows = conn.execute(
+        "SELECT day FROM completions WHERE habit_id = ?", (habit_id,)
+    ).fetchall()
+    days = {row["day"] for row in rows}
+    current = date.today()
+    if current.isoformat() not in days:
+        current -= timedelta(days=1)
+    streak = 0
+    while current.isoformat() in days:
+        streak += 1
+        current -= timedelta(days=1)
+    return streak
 @app.route("/")
 def home():
     today = date.today().isoformat()
@@ -15,9 +28,9 @@ def home():
         "FROM habits h",
         (today,),
     ).fetchall()
+    habits = [dict(h, streak=get_streak(conn, h["id"])) for h in habits]
     conn.close()
     return render_template("index.html", habits=habits)
-
 @app.route("/toggle/<int:habit_id>", methods=["POST"])
 def toggle(habit_id):
     today = date.today().isoformat()
