@@ -11,7 +11,11 @@
   {% for habit in habits %}
     <li>
       <form method="post" action="{{ url_for('toggle', habit_id=habit.id) }}">
-        <button type="submit" class="{{ 'done' if habit.done else '' }}">{{ "✓" if habit.done else "○" }}</button>        {{ habit.name }}
+        <button type="submit" class="{{ 'done' if habit.done else '' }}">{{ "✓" if habit.done else "○" }}</button>
+        {{ habit.name }}
+      </form>
+      <form method="post" action="{{ url_for('delete', habit_id=habit.id) }}" class="remove">
+          <button type="submit" class="delete" aria-label="Delete {{ habit.name }}">✕</button>
       </form>
     </li>
   {% endfor %}

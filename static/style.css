@@ -51,3 +51,19 @@ button.done {
   border-radius: 8px;
   font-size: 1rem;
 }
+li {
+  display: flex;
+  align-items: center;
+}
+
+li form:first-child {
+  flex: 1;
+}
+
+.delete {
+  width: 32px;
+  height: 32px;
+  font-size: 0.9rem;
+  color: #6b7f7a;
+  border-width: 1px;
+}

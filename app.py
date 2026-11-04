@@ -49,5 +49,13 @@ def add():
         conn.commit()
         conn.close()
     return redirect(url_for("home"))
+@app.route("/delete/<int:habit_id>", methods=["POST"])
+def delete(habit_id):
+    conn = get_db()
+    conn.execute("DELETE FROM completions WHERE habit_id = ?", (habit_id,))
+    conn.execute("DELETE FROM habits WHERE id = ?", (habit_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for("home"))    
 if __name__ == "__main__":
     app.run(debug=True)
