@@ -11,11 +11,14 @@
   {% for habit in habits %}
     <li>
       <form method="post" action="{{ url_for('toggle', habit_id=habit.id) }}">
-        <button type="submit">{{ "✓" if habit.done else "○" }}</button>
-        {{ habit.name }}
+        <button type="submit" class="{{ 'done' if habit.done else '' }}">{{ "✓" if habit.done else "○" }}</button>        {{ habit.name }}
       </form>
     </li>
   {% endfor %}
   </ul>
+<form method="post" action="{{ url_for('add') }}" class="add">
+  <input type="text" name="name" placeholder="New habit" required>
+  <button type="submit" class="plus">+</button>
+</form>  
 </body>
 </html>

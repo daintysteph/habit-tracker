@@ -1,7 +1,6 @@
 from datetime import date
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request
 from database import get_db, init_db
-
 app = Flask(__name__)
 init_db()
 
@@ -41,5 +40,14 @@ def toggle(habit_id):
     conn.close()
     return redirect(url_for("home"))
 
+@app.route("/add", methods=["POST"])
+def add():
+    name = request.form["name"].strip()
+    if name:
+        conn = get_db()
+        conn.execute("INSERT OR IGNORE INTO habits (name) VALUES (?)", (name,))
+        conn.commit()
+        conn.close()
+    return redirect(url_for("home"))
 if __name__ == "__main__":
     app.run(debug=True)
