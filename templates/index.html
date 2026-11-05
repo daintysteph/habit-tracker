@@ -2,35 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Habit Tracker</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <h1>Habit Tracker</h1>
-  <ul>
-  {% for habit in habits %}
-    <li>
-  <div class="head">
-    <span class="name">{{ habit.name }}</span>
-    <span class="streak">{{ habit.streak }} day streak</span>
-    <form method="post" action="{{ url_for('delete', habit_id=habit.id) }}">
-      <button type="submit" class="delete" aria-label="Delete {{ habit.name }}">✕</button>
+  <div class="topbar">
+    <h1>Habit Tracker</h1>
+    <form method="post" action="{{ url_for('logout') }}">
+      <span>{{ username }}</span>
+      <button type="submit" class="logout">Log out</button>
     </form>
   </div>
-  <div class="days">
-    {% for d in habit.days %}
-      <form method="post" action="{{ url_for('toggle', habit_id=habit.id, day=d.iso) }}" class="day">
-        <button type="submit" class="{{ 'done' if d.done else '' }}">{{ "✓" if d.done else "" }}</button>
-        <span>{{ d.label }}</span>
-      </form>
+
+  <ul>
+    {% for habit in habits %}
+      <li>
+        <div class="head">
+          <span class="name">{{ habit.name }}</span>
+          <span class="streak">{{ habit.streak }} day streak</span>
+          <form method="post" action="{{ url_for('delete', habit_id=habit.id) }}">
+            <button type="submit" class="delete" aria-label="Delete {{ habit.name }}">✕</button>
+          </form>
+        </div>
+        <div class="days">
+          {% for d in habit.days %}
+            <form method="post" action="{{ url_for('toggle', habit_id=habit.id, day=d.iso) }}" class="day">
+              <button type="submit" class="{{ 'done' if d.done else '' }}">{{ "✓" if d.done else "" }}</button>
+              <span>{{ d.label }}</span>
+            </form>
+          {% endfor %}
+        </div>
+      </li>
     {% endfor %}
-  </div>
-</li>
-  {% endfor %}
   </ul>
-<form method="post" action="{{ url_for('add') }}" class="add">
-  <input type="text" name="name" placeholder="New habit" required>
-  <button type="submit" class="plus">+</button>
-</form>  
+
+  <form method="post" action="{{ url_for('add') }}" class="add">
+    <input type="text" name="name" placeholder="New habit" required>
+    <button type="submit" class="plus">+</button>
+  </form>
 </body>
 </html>

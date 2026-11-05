@@ -101,3 +101,51 @@ button.done {
   border-radius: 8px;
   font-size: 1rem;
 }
+.auth {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth input {
+  padding: 10px;
+  border: 1px solid #d5e0dc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.auth button {
+  width: auto;
+  height: auto;
+  padding: 10px;
+  border-radius: 8px;
+  background: #0f766e;
+  border-color: #0f766e;
+  color: white;
+  font-size: 1rem;
+}
+
+.error {
+  color: #b42318;
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topbar form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #6b7f7a;
+}
+
+.logout {
+  width: auto;
+  height: auto;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
