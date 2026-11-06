@@ -1,7 +1,7 @@
 import os
-import sqlite3
 from datetime import date, timedelta
 from functools import wraps
+import psycopg
 from flask import Flask, render_template, redirect, url_for, request, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import get_db, init_db, add_default_habits
@@ -20,7 +20,7 @@ def login_required(view):
 
 def get_streak(conn, habit_id):
     rows = conn.execute(
-        "SELECT day FROM completions WHERE habit_id = ?", (habit_id,)
+        "SELECT day FROM completions WHERE habit_id = %s", (habit_id,)
     ).fetchall()
     days = {row["day"] for row in rows}
     current = date.today()
@@ -34,7 +34,7 @@ def get_streak(conn, habit_id):
 
 def owns_habit(conn, habit_id):
     row = conn.execute(
-        "SELECT 1 FROM habits WHERE id = ? AND user_id = ?",
+        "SELECT 1 FROM habits WHERE id = %s AND user_id = %s",
         (habit_id, session["user_id"]),
     ).fetchone()
     return row is not None
@@ -46,7 +46,7 @@ def home():
     week = [today - timedelta(days=i) for i in range(6, -1, -1)]
     conn = get_db()
     user = conn.execute(
-        "SELECT username FROM users WHERE id = ?", (session["user_id"],)
+        "SELECT username FROM users WHERE id = %s", (session["user_id"],)
     ).fetchone()
     if user is None:
         conn.close()
@@ -54,11 +54,12 @@ def home():
         return redirect(url_for("login"))
     habits = []
     rows = conn.execute(
-        "SELECT * FROM habits WHERE user_id = ?", (session["user_id"],)
+        "SELECT * FROM habits WHERE user_id = %s ORDER BY id",
+        (session["user_id"],),
     ).fetchall()
     for h in rows:
         done_rows = conn.execute(
-            "SELECT day FROM completions WHERE habit_id = ?", (h["id"],)
+            "SELECT day FROM completions WHERE habit_id = %s", (h["id"],)
         ).fetchall()
         done_days = {row["day"] for row in done_rows}
         habits.append({
@@ -91,17 +92,17 @@ def toggle(habit_id, day):
         conn.close()
         return redirect(url_for("home"))
     exists = conn.execute(
-        "SELECT 1 FROM completions WHERE habit_id = ? AND day = ?",
+        "SELECT 1 FROM completions WHERE habit_id = %s AND day = %s",
         (habit_id, day),
     ).fetchone()
     if exists:
         conn.execute(
-            "DELETE FROM completions WHERE habit_id = ? AND day = ?",
+            "DELETE FROM completions WHERE habit_id = %s AND day = %s",
             (habit_id, day),
         )
     else:
         conn.execute(
-            "INSERT INTO completions (habit_id, day) VALUES (?, ?)",
+            "INSERT INTO completions (habit_id, day) VALUES (%s, %s)",
             (habit_id, day),
         )
     conn.commit()
@@ -115,7 +116,8 @@ def add():
     if name:
         conn = get_db()
         conn.execute(
-            "INSERT OR IGNORE INTO habits (user_id, name) VALUES (?, ?)",
+            "INSERT INTO habits (user_id, name) VALUES (%s, %s) "
+            "ON CONFLICT DO NOTHING",
             (session["user_id"], name),
         )
         conn.commit()
@@ -127,8 +129,8 @@ def add():
 def delete(habit_id):
     conn = get_db()
     if owns_habit(conn, habit_id):
-        conn.execute("DELETE FROM completions WHERE habit_id = ?", (habit_id,))
-        conn.execute("DELETE FROM habits WHERE id = ?", (habit_id,))
+        conn.execute("DELETE FROM completions WHERE habit_id = %s", (habit_id,))
+        conn.execute("DELETE FROM habits WHERE id = %s", (habit_id,))
         conn.commit()
     conn.close()
     return redirect(url_for("home"))
@@ -143,15 +145,16 @@ def register():
         else:
             conn = get_db()
             try:
-                cur = conn.execute(
-                    "INSERT INTO users (username, password_hash) VALUES (?, ?)",
+                row = conn.execute(
+                    "INSERT INTO users (username, password_hash) "
+                    "VALUES (%s, %s) RETURNING id",
                     (username, generate_password_hash(password)),
-                )
-                add_default_habits(conn, cur.lastrowid)
+                ).fetchone()
+                add_default_habits(conn, row["id"])
                 conn.commit()
-                session["user_id"] = cur.lastrowid
+                session["user_id"] = row["id"]
                 return redirect(url_for("home"))
-            except sqlite3.IntegrityError:
+            except psycopg.errors.UniqueViolation:
                 flash("That username is taken.")
             finally:
                 conn.close()
@@ -164,7 +167,7 @@ def login():
         password = request.form["password"]
         conn = get_db()
         user = conn.execute(
-            "SELECT * FROM users WHERE username = ?", (username,)
+            "SELECT * FROM users WHERE username = %s", (username,)
         ).fetchone()
         conn.close()
         if user and check_password_hash(user["password_hash"], password):
