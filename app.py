@@ -5,6 +5,7 @@ import psycopg
 from flask import Flask, render_template, redirect, url_for, request, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import get_db, init_db, add_default_habits
+from streaks import calculate_streak
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-me")
@@ -23,14 +24,7 @@ def get_streak(conn, habit_id):
         "SELECT day FROM completions WHERE habit_id = %s", (habit_id,)
     ).fetchall()
     days = {row["day"] for row in rows}
-    current = date.today()
-    if current.isoformat() not in days:
-        current -= timedelta(days=1)
-    streak = 0
-    while current.isoformat() in days:
-        streak += 1
-        current -= timedelta(days=1)
-    return streak
+    return calculate_streak(days, date.today())
 
 def owns_habit(conn, habit_id):
     row = conn.execute(

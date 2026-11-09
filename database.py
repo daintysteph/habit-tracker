@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DEFAULT_HABITS = ["Exercise", "Reading", "Water", "Food"]
+DEFAULT_HABITS = ["Exercise", "Reading", "Swimming", "Eating fruits"]
 
 def get_db():
     return psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row)
