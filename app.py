@@ -6,6 +6,7 @@ from flask import Flask, render_template, redirect, url_for, request, session, f
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import get_db, init_db, add_default_habits
 from streaks import calculate_streak
+from months import month_weeks, shift_month
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-me")
@@ -174,6 +175,55 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for("login"))
+
+@app.route("/month/<int:habit_id>")
+@login_required
+def month(habit_id):
+    today = date.today()
+    year = request.args.get("y", today.year, type=int)
+    mon = request.args.get("m", today.month, type=int)
+    if not (2000 <= year <= 2100 and 1 <= mon <= 12):
+        year, mon = today.year, today.month
+
+    conn = get_db()
+    habit = conn.execute(
+        "SELECT * FROM habits WHERE id = %s AND user_id = %s",
+        (habit_id, session["user_id"]),
+    ).fetchone()
+    if habit is None:
+        conn.close()
+        return redirect(url_for("home"))
+
+    rows = conn.execute(
+        "SELECT day FROM completions WHERE habit_id = %s AND day LIKE %s",
+        (habit_id, f"{year:04d}-{mon:02d}-%"),
+    ).fetchall()
+    conn.close()
+    done_days = {int(r["day"][8:10]) for r in rows}
+
+    weeks = []
+    for week in month_weeks(year, mon):
+        cells = []
+        for num in week:
+            if num == 0:
+                cells.append(None)
+            else:
+                cells.append({
+                    "num": num,
+                    "done": num in done_days,
+                    "today": date(year, mon, num) == today,
+                })
+        weeks.append(cells)
+
+    return render_template(
+        "month.html",
+        habit=habit,
+        weeks=weeks,
+        title=date(year, mon, 1).strftime("%B %Y"),
+        prev=shift_month(year, mon, -1),
+        next=shift_month(year, mon, 1),
+        count=len(done_days),
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)

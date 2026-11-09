@@ -149,3 +149,56 @@ button.done {
   border-radius: 8px;
   font-size: 0.9rem;
 }
+.monthnav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0;
+}
+
+.monthnav a,
+.monthlink {
+  color: #0f766e;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.cal {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.dow {
+  text-align: center;
+  font-size: 0.78rem;
+  color: #6b7f7a;
+}
+
+.cell {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid #d5e0dc;
+  border-radius: 10px;
+  background: white;
+}
+
+.cell.empty {
+  border: none;
+  background: transparent;
+}
+
+.cell.done {
+  background: #0f766e;
+  border-color: #0f766e;
+  color: white;
+}
+
+.cell.today-cell {
+  border: 2px solid #e3a72f;
+}
+
+.muted {
+  color: #6b7f7a;
+}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ habit.name }} – {{ title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h1>{{ habit.name }}</h1>
+
+  <div class="monthnav">
+    <a href="{{ url_for('month', habit_id=habit.id, y=prev[0], m=prev[1]) }}">‹ Prev</a>
+    <strong>{{ title }}</strong>
+    <a href="{{ url_for('month', habit_id=habit.id, y=next[0], m=next[1]) }}">Next ›</a>
+  </div>
+
+  <div class="cal">
+    {% for name in ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] %}
+      <span class="dow">{{ name }}</span>
+    {% endfor %}
+    {% for week in weeks %}
+      {% for cell in week %}
+        {% if cell %}
+          <span class="cell {{ 'done' if cell.done else '' }} {{ 'today-cell' if cell.today else '' }}">{{ cell.num }}</span>
+        {% else %}
+          <span class="cell empty"></span>
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  </div>
+
+  <p class="muted">{{ count }} days done this month</p>
+  <p><a href="{{ url_for('home') }}">← Back to habits</a></p>
+</body>
+</html>

@@ -21,6 +21,7 @@
         <div class="head">
           <span class="name">{{ habit.name }}</span>
           <span class="streak">{{ habit.streak }} day streak</span>
+          <a class="monthlink" href="{{ url_for('month', habit_id=habit.id) }}">Month</a>
           <form method="post" action="{{ url_for('delete', habit_id=habit.id) }}">
             <button type="submit" class="delete" aria-label="Delete {{ habit.name }}">✕</button>
           </form>
