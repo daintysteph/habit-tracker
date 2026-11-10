@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<script src="{{ url_for('static', filename='theme.js') }}"></script>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -33,4 +34,5 @@
   <p class="muted">{{ count }} days done this month</p>
   <p><a href="{{ url_for('home') }}">← Back to habits</a></p>
 </body>
+<button type="button" id="theme-toggle" class="theme-btn" aria-label="Toggle dark mode">◐</button>
 </html>
